@@ -113,15 +113,20 @@ It will show something like this:
 * ? means new untracked file
 * A means added
 
-# Viewing staged and unstaged changes
-To compare staging area files with previous committed versions
-
-        git diff --staged
+# Diffing
 
 
-To compare working directory with staging files
+        git diff --staged       //compare staging area files with previous committed versions
 
-        git diff
+        git diff                //compare working directory with staging files
+
+        git diff HEAD~2 HEAD    //compare Head with 2 commits before
+
+        git diff HEAD~2 HEAD audience.txt    //compare Head with 2 commits before for a specific file
+
+        git diff HEAD~2 HEAD --name-only    //name of the files touched by the commits
+
+        git diff HEAD~2 HEAD --name-status    //name of the files touched by the commits and what happened to each file
 
 
 # Visual Diff tools
@@ -136,10 +141,185 @@ To compare working directory to staging area
 
         git difftool
 
-To compare staged files with previously commited
+To compare staged files with previously committed
 
         git difftool --staged
 
 
 NOTE = As we would do with the command git diff
+
+# Viewing history
+To view the history of commits
+
+        git log
+
+        git log --oneline               //in one line
+
+        git log --oneline -3            //last 3 commits
+
+        git log --oneline --reverse     //in one line but top to bottom
+
+        git log --oneline --author="LF"  //commits by author
+
+        git log --oneline --after="2020-08-17"  //after x date
+
+        git log --oneline --after="yesterday"  //after yesterday
+
+        git log --oneline --after="one week ago"
+
+        git log --oneline --grep="GUI"   //commits with the word GUI in their message
+
+        git log --oneline -S"hello()"    //commits that have changed that line
+
+        git log --oneline -S"hello()" --patch    //to also show the actual changes
+
+        git log --oneline fb0d184..edb3594    //range of commits
+
+        git log --oneline -- file1.cs              //all the commits that touched a file
+        
+        git log --oneline --patch -- file1.cs      //the actual changes to a file in particular
+
+        git log --oneline --stat        //to get the statistics about the files changed in each commit
+        
+        git log --oneline --patch       //to show the actual changes
+
+        git log --oneline --all         //to show every commit (even after HEAD if we're in detached HEAD mode)
+        
+        git log --stat                  //without oneliners
+
+        git shortlog                    //contributors
+
+        git shortlog -n -s -e           //contributors sorted by commit nr , without commit message and emails
+
+        git shortlog -n --before="" --after=""       //contributors sorted by commit nr and without commit message
+
+
+
+HEAD -> master = means that the current branch (HEAD) points to the master branch
+
+
+# Viewing changes on a commit
+To check the changes that went on a commit we can
+
+        git show d601b90 
+        
+        git show HEAD           //last commit
+
+        git show HEAD~1         //second to last commit
+
+        git show HEAD~1 --name-only         //shows only the names of the files touched by the commit
+
+        git show HEAD~1 --name-status       //shows the names of the files touched by the commit and what happen to each one (modified, deleted)
+
+
+If instead of the differences you want to see the final version of the file
+
+        git show HEAD~1:bin/app.bin
+
+
+If you want to see all the files that went on a commit
+
+        git ls-tree HEAD~1
+
+
+# Git objects
+* Commits
+* Blobs (Files)
+* Trees (Directories)
+* Tags
+
+# Restoring Files
+To undo the Add operation:
+
+        git restore . 
+
+        git restore --staged file1.js
+
+The restore command takes the copy from the next environment. So:
+
+* Restore on staging environment -> gets the changes from last commit
+* Restore on working directory -> gets the changes from the staging environment
+
+
+Imagining that we deleted a file and then committed the deletion.
+
+        git restore --source=HEAD~1 file1.js //puts the file only in the working directory
+
+        git checkout HEAD~1 file1.js    //puts the file in the working dir and on the index
+
+
+# Discarding Local Changes
+To clean untracked files
+
+        git clean -fd
+
+
+# Create an Alias
+We can create alias for commands in the config
+
+        git config --global alias.unstage "restore --staged ."
+
+        git unstage        //this will perform the configured command
+
+
+# Checking out a commit
+Get the working directory to look like an earlier point in time
+
+        git checkout dad47ed
+
+You'l get a warning saying that you're in detached HEAD state
+When you're in this state, it's important not to create a new commit because this will not be reachable and it will get cleaned by git.
+To point HEAD back to master...
+
+        git checkout master
+
+# Bisect
+Divide and conquer strategy to see where the bug was initially added to the codebase
+
+        git bisect start
+
+and now we have to tag good and bad commits
+
+        git bisect bad          //assuming HEAD already has the bug
+
+and to tag a good commit
+
+        git bisect good ca49180
+
+and we continue until finding the commit that introduced the bug. To end and reatach HEAD to master we do
+
+        git bisect reset
+
+
+
+# Blame tool
+
+        git blame -e file1.js          //commit authors with emails
+
+
+        git blame -e -L 1,3 file1.js   //same but the first 3 lines
+
+
+# Tagging
+
+
+        git tag v1.0            //tags HEAD
+ 
+        git tag v1.0 5e7a828    //tags a particular commit
+
+        git tag -a v1.1 -m      //creates an annotated tag
+
+        git tag                 //lists all tags
+
+        git tag -n              //lists all tags and messages associated
+
+        git tag -d v1.0         //deletes the tag
+
+        git checkout v1.0       //checkouts by the tag
+
+
+
+
+
+
 
