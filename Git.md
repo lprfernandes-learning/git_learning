@@ -185,6 +185,8 @@ To view the history of commits
 
         git log --oneline --all         //to show every commit (even after HEAD if we're in detached HEAD mode)
         
+        git log --oneline --all --graph //same but with graph
+
         git log --stat                  //without oneliners
 
         git shortlog                    //contributors
@@ -215,7 +217,6 @@ To check the changes that went on a commit we can
 If instead of the differences you want to see the final version of the file
 
         git show HEAD~1:bin/app.bin
-
 
 If you want to see all the files that went on a commit
 
@@ -316,6 +317,148 @@ and we continue until finding the commit that introduced the bug. To end and rea
         git tag -d v1.0         //deletes the tag
 
         git checkout v1.0       //checkouts by the tag
+
+
+# Branches
+
+
+        git branch bugfix       //creates a new branch
+
+        git branch              //lists all branches
+
+        git switch bugfix       //switches to another branch
+
+        git switch -C bugfix    //creates and switch to a branch
+
+        git branch -m bugfix bugfix/signup-form  //changes the name of the local branch
+
+        git branch -D bugfix    //force delete a branch
+
+        git branch --merged     //lists merged branches that are safe to delete
+
+        git branch --no-merged     //lists unmerged branches
+
+        git log master..bugfix  //what commits are in bugfix but not on master
+
+        git diff master..bugfix //diffing both branches
+
+        //or if we are already on master we can omit it
+
+        git diff bugfix
+
+        git diff --name-status bugfix //now with the filenames and types of changes
+
+# Stashing
+When we switch branches git resets our working directory to the snapshot stored in the last commit of the target branch. If we have changes in our working dir that we didn't commit yet but we want to change branch we must first stash them to not lose them.
+
+        git stash push -am "some indicative message"
+
+        git stash list          //lists all stashes
+
+        git stash show 1        //shows the changes in the stash
+
+        git stash apply 1       //applies the stash changes to the working dir
+
+        git stash drop 1        //removes stash
+
+        git stash clear         //removes all stashes
+
+
+# Merging
+There's 2 types of merges
+
+* Fast-forward merges  => if branches have not diverged, just moves master tag to the newest commit of the new branch
+* 3-way merges => In case the branches are diverged (master has a new commit that is not in the new branch)looks at the common ancestor and the 2 tips of each branch and combines these last two in a new commit (merge commit).
+
+        git merge bugfix
+
+        git merge --no-ff bugfix        //disables fast forward merge so it creates a merge commit
+
+
+And because we can forget about the no ff policy we have a way to configure git that way.
+
+        git config --global ff no
+
+
+# Conflicts
+When the automatic merge is not possible and there's a conflict, the merge process halts and we must go in and inspect the conflicts, first we:
+
+        git status
+
+It will show unmerged paths. Now if you open one of those unmerged paths with the default editor, because we're inside the merge process still, it will show us the conflicts, edit those conflicted lines on the code, add the file to the staging dir and then commit.
+
+Aborting a merge:
+
+        git merge --abort
+
+Undoing a faulty merge:
+Removing last commit:
+
+        git reset --hard HEAD~1
+
+ATTENTION: THIS REWRITES HISTORY AND SHOULDN'T BE DONE IN CASE OF ANY OF THESE COMMITS ARE ALREADY PUSHED TO REMOTE
+
+* soft - just point the HEAD pointer to the snapshot
+* mixed - point and get the snapshot in the staging area
+* hard - point and get the snapshot in the staging area and working dir
+
+In case of already pushed to remote, we can revert the last commit
+
+        git revert -m 1 HEAD    //reverts to the first parent (master)
+
+
+# Merge Tools
+* Kdiff
+* P4Merge
+* Winmerge
+
+
+        git config --global merge.tool p4merge
+
+        git config --global mergetool.p4merge.path "C..."
+
+        //when in merge process and conflict arises
+        git mergetool
+
+
+# Squash merging
+A new commit that combines all the changes on the new branch, deletes the branch and ff the master to it. Use it only with small branches with bad history. Like bugfixes
+
+        git merge --squash bugfix
+
+Attention: as this has no merge commit, we need to delete the branch by hand after.
+
+# Rebase
+To get linear history (assuming master is divergent), we can point the base of the new branch to the last commit on master. This operation rewrites history so only use in case it is local or you are certain no one will work on top of that branch.
+
+        git switch feature      //get to the branch to rebase
+
+        git rebase master       //take the base of this branch and point it to the last commit of master
+
+        git merge feature       //now we can ff merge
+
+If theres a conflict while rebasing, we edit the files and then
+
+        git rebase --continue
+
+        git clean -fd   //if we aborted the rebase and theres a temp file
+
+        git config --global mergetool.keepBackup false  //config merge tool to not produce a backup
+
+
+# Cherry Picking
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
