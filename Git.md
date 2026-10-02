@@ -330,6 +330,8 @@ and we continue until finding the commit that introduced the bug. To end and rea
 
         git switch -C bugfix    //creates and switch to a branch
 
+        git switch -C bugfix origin/bugfix //creates a new local branch and points it to a remote branch (presuming it already exists)
+
         git branch -m bugfix bugfix/signup-form  //changes the name of the local branch
 
         git branch -D bugfix    //force delete a branch
@@ -447,22 +449,131 @@ If theres a conflict while rebasing, we edit the files and then
 
 
 # Cherry Picking
+To choose some commits to put in front of master but not merge the entire branch
+
+        git cherry-pick 5670ecc
 
 
+## Clone
+To clone a remote repo to our local machine
+
+        git clone https....
+
+        git clone https.... MarsProject //with specific folder name
+
+        git remote      //shows the remote repos
+
+        git remote -v   //shows the remote repos urls for fetch and push
 
 
+# Fetching
+Fetches changes from the remote repo and moves the origin/master pointer to that last commit.Now we have 2 branches that are not merged still. So we need to merge them
+
+        git fetch
+
+        git merge origin/master //from the branch master which is x commits behind origin/master)
+
+        git branch --vv         //shows which local branch is connected to which remote branch and how many commits behind
+
+        git branch -r           //lists the remote branches
+
+# Pull
+Instead of having to fetch and then merge, we can simply pull that does the 2 operations in one.
+
+        git pull origin         //will merge by merge commit
+
+        git pull --rebase       //will merge by rebasing
+
+# Push
+In case your origin/master being behind your master, we can push that commit to the remote repo. In case of denied the 2 histories are diverging, meaning we have to pull first and then push.
+
+        git push origin         //if the remote branch exists already
+
+        git push -u origin feature/password     //creates the branch on the remote (-u) is set upstream
+
+        git push origin v1.0    //to push tags (as per default it isn't pushed)
+
+        git push origin --delete v1.0    //to delete tags in the remote
+
+        git push -d origin feature/changePassword //deletes (only) the remote branch git branch -d feature/changePassword to delete local
+
+        git remote prune origin   //after removing remote branch, it continues to exist in our local machine, this command prunes it
 
 
+## Sync changes from forked repo to base repo
+We add a remote to base, we pull it, we commit the changes to the forked repo.
+
+        git remote add base https:...
+
+        git remote -v                   //check if its listed
+
+        git remote rename name1 name2   //rename the remote in case of mistake
+
+        git remote rm base              //remove the remote and begin again in case of badly
+
+        git pull base
+
+        git push origin
+        
+# Undoing Commits (Local)
+
+        git reset --hard HEAD~1
+
+# Reverting Commits 
+
+        git revert --no-commit HEAD~3..
+
+# Recovering Commits
+
+        git reflog 
+        git reset --hard HEAD@{1}
+
+# Amending last commit
+
+        git commit --amend -m "new commit message"
+
+# Amending earlier commits
+
+        git rebase -i 852736
+
+        //then change pick to edit
 
 
+# Dropping a commit 
 
+        git rebase -i 6cbd931~1
 
+        //then change pick to drop
+        //if conflict run status and resolve conflicts by git mergetool
 
+# Reword commit messages
 
+        git rebase -i 6cbd931~1
+        //then change pick to reword
 
+# Reorder commits
 
+        git rebase -i 6cbd931~1
+        //then change the order of the lines
 
+# Squashing commits
 
+        git rebase -i 6cbd931~1
+        //then change pick to squash (it will squash to the previous commit)
+        //or
+        //change pick to fixup (difference from squash is git only keeps the message of the commit you're squashing to)
 
+# Splitting a commit 
 
+        git rebase -i 6cbd931~1
+        //then change pick to edit
 
+        git reset --mixed HEAD~1 (unstages changes)
+        //so now we can stage some changes and not others
+
+        git commit -m "commit one without the other"
+
+        git add . //to add a new untracked file or the second change
+        git commit -m "commit the second change"
+
+        git rebase --continue
